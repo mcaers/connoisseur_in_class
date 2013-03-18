@@ -3,9 +3,14 @@ require "open-uri"
 
 class HtmlGenerator
   
-  def show
+  def show(id)
     print_header
     puts "Action: Show"
+
+    product = retrieve_data("http://lcboapi.com/products/#{id}.json")
+
+    display_detailed_product(product)
+
     print_footer
   end
 
@@ -13,7 +18,7 @@ class HtmlGenerator
     print_header
     puts "Action: Index"
 
-    products = retrieve_data
+    products = retrieve_data("http://lcboapi.com/products.json")
     
     products.each do |product|
       display_product(product)
@@ -23,6 +28,28 @@ class HtmlGenerator
   end
 
   private
+
+  def display_detailed_product(product)
+    puts "<div class='detailed_product'>"
+    puts "<h1>#{product['name']}</h1>"
+    puts "<img src=#{product['image_url']}>"
+    puts "<div class='ps'>"
+    puts "<p>#{product['id']}<br>"
+    puts "#{product['producer_name']}<br>"
+    puts "#{product['primary_category']}<br>"
+    puts "#{product['secondary_category']}<br>"
+    puts "#{product['origin']}<br>"
+    puts "#{product['package']}<br>"
+    puts "#{product['package_unit_type']}<br>"
+    puts "$#{product['price_in_cents']/100.0}<br>"
+    puts "#{product['serving_suggestion']}<br>"
+    puts "#{product['tasting_note']}<br>"
+    puts "#{product['tags']}<br>"
+    puts "</div>"
+    puts "</div>"
+
+  end
+
 
   def display_product(product)
     puts "<div class='product'>"
@@ -53,8 +80,8 @@ class HtmlGenerator
     puts "</html>"
   end
 
-  def retrieve_data
-    response = open("http://lcboapi.com/products.json").read
+  def retrieve_data(url)
+    response = open(url).read
     data = JSON.parse(response)
     return data["result"]
   end
